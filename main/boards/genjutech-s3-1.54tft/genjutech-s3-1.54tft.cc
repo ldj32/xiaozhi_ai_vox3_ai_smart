@@ -10,6 +10,7 @@
 #include <esp_log.h>
 #include <esp_lcd_panel_vendor.h>
 #include <driver/i2c_master.h>
+#include <wifi_station.h>
 #include <esp_efuse_table.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
@@ -19,6 +20,9 @@
 #include "power_manager.h"
 
 #define TAG "GenJuTech_s3_1_54TFT"
+
+LV_FONT_DECLARE(font_puhui_20_4);
+LV_FONT_DECLARE(font_awesome_20_4);
 
 class SparkBotEs8311AudioCodec : public Es8311AudioCodec {
     private:    
@@ -108,9 +112,8 @@ private:
         boot_button_.OnClick([this]() {
             power_save_timer_->WakeUp();
             auto& app = Application::GetInstance();
-            if (app.GetDeviceState() == kDeviceStateStarting) {
-                EnterWifiConfigMode();
-                return;
+            if (app.GetDeviceState() == kDeviceStateStarting && !WifiStation::GetInstance().IsConnected()) {
+                ResetWifiConfiguration();
             }
             app.ToggleChatState();
         });
@@ -197,7 +200,12 @@ private:
         ESP_ERROR_CHECK(esp_lcd_panel_invert_color(panel, true));
 
         display_ = new SpiLcdDisplay(panel_io, panel,
-                            DISPLAY_WIDTH, DISPLAY_HEIGHT, DISPLAY_OFFSET_X, DISPLAY_OFFSET_Y, DISPLAY_MIRROR_X, DISPLAY_MIRROR_Y, DISPLAY_SWAP_XY);
+                            DISPLAY_WIDTH, DISPLAY_HEIGHT, DISPLAY_OFFSET_X, DISPLAY_OFFSET_Y, DISPLAY_MIRROR_X, DISPLAY_MIRROR_Y, DISPLAY_SWAP_XY,
+                            {
+                                .text_font = &font_puhui_20_4,
+                                .icon_font = &font_awesome_20_4,
+                                .emoji_font = font_emoji_64_init(),
+                            });
     }
 
 public:
@@ -214,6 +222,7 @@ public:
         InitializeSt7789Display();
         GetBacklight()->RestoreBrightness();
     }
+    
 
     virtual Led* GetLed() override {
         static SingleLed led(BUILTIN_LED_GPIO);
@@ -248,11 +257,11 @@ public:
         return true;
     }
 
-    virtual void SetPowerSaveLevel(PowerSaveLevel level) override {
-        if (level != PowerSaveLevel::LOW_POWER) {
+    virtual void SetPowerSaveMode(bool enabled) override {
+        if (!enabled) {
             power_save_timer_->WakeUp();
         }
-        WifiBoard::SetPowerSaveLevel(level);
+        WifiBoard::SetPowerSaveMode(enabled);
     }
 };
 

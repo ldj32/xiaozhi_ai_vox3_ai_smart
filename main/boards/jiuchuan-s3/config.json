@@ -1,5 +1,4 @@
 {
-    "type": "jiuchuan-s3",
     "target": "esp32s3",
     "builds": [
         {

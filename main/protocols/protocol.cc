@@ -1,34 +1,14 @@
 #include "protocol.h"
-#include "assets.h"
 
 #include <esp_log.h>
 
 #define TAG "Protocol"
 
-void Protocol::AddTextFontCapabilities(cJSON* root) {
-    auto capability = Assets::GetInstance().text_font_capability();
-    cJSON* features = cJSON_GetObjectItem(root, "features");
-    if (cJSON_IsObject(features)) {
-        cJSON_AddBoolToObject(features, "glyph_push", capability.glyph_push);
-    }
-
-    if (!capability.glyph_push) {
-        return;
-    }
-    cJSON* font = cJSON_CreateObject();
-    cJSON_AddStringToObject(font, "bundle", capability.bundle.c_str());
-    cJSON_AddStringToObject(font, "charset", capability.charset.c_str());
-    cJSON_AddNumberToObject(font, "size", capability.size);
-    cJSON_AddNumberToObject(font, "bpp", capability.bpp);
-    cJSON_AddItemToObject(root, "text_font", font);
-}
-
 void Protocol::OnIncomingJson(std::function<void(const cJSON* root)> callback) {
     on_incoming_json_ = callback;
 }
 
-void Protocol::OnIncomingAudio(
-    std::function<void(std::unique_ptr<AudioStreamPacket> packet)> callback) {
+void Protocol::OnIncomingAudio(std::function<void(std::unique_ptr<AudioStreamPacket> packet)> callback) {
     on_incoming_audio_ = callback;
 }
 
@@ -44,9 +24,13 @@ void Protocol::OnNetworkError(std::function<void(const std::string& message)> ca
     on_network_error_ = callback;
 }
 
-void Protocol::OnConnected(std::function<void()> callback) { on_connected_ = callback; }
+void Protocol::OnConnected(std::function<void()> callback) {
+    on_connected_ = callback;
+}
 
-void Protocol::OnDisconnected(std::function<void()> callback) { on_disconnected_ = callback; }
+void Protocol::OnDisconnected(std::function<void()> callback) {
+    on_disconnected_ = callback;
+}
 
 void Protocol::SetError(const std::string& message) {
     error_occurred_ = true;
@@ -65,9 +49,8 @@ void Protocol::SendAbortSpeaking(AbortReason reason) {
 }
 
 void Protocol::SendWakeWordDetected(const std::string& wake_word) {
-    std::string json = "{\"session_id\":\"" + session_id_ +
-                       "\",\"type\":\"listen\",\"state\":\"detect\",\"text\":\"" + wake_word +
-                       "\"}";
+    std::string json = "{\"session_id\":\"" + session_id_ + 
+                      "\",\"type\":\"listen\",\"state\":\"detect\",\"text\":\"" + wake_word + "\"}";
     SendText(json);
 }
 
@@ -86,14 +69,12 @@ void Protocol::SendStartListening(ListeningMode mode) {
 }
 
 void Protocol::SendStopListening() {
-    std::string message =
-        "{\"session_id\":\"" + session_id_ + "\",\"type\":\"listen\",\"state\":\"stop\"}";
+    std::string message = "{\"session_id\":\"" + session_id_ + "\",\"type\":\"listen\",\"state\":\"stop\"}";
     SendText(message);
 }
 
 void Protocol::SendMcpMessage(const std::string& payload) {
-    std::string message =
-        "{\"session_id\":\"" + session_id_ + "\",\"type\":\"mcp\",\"payload\":" + payload + "}";
+    std::string message = "{\"session_id\":\"" + session_id_ + "\",\"type\":\"mcp\",\"payload\":" + payload + "}";
     SendText(message);
 }
 

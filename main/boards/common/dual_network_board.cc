@@ -72,11 +72,6 @@ void DualNetworkBoard::StartNetwork() {
     current_board_->StartNetwork();
 }
 
-void DualNetworkBoard::SetNetworkEventCallback(NetworkEventCallback callback) {
-    // Forward the callback to the current board
-    current_board_->SetNetworkEventCallback(std::move(callback));
-}
-
 NetworkInterface* DualNetworkBoard::GetNetwork() {
     return current_board_->GetNetwork();
 }
@@ -85,8 +80,8 @@ const char* DualNetworkBoard::GetNetworkStateIcon() {
     return current_board_->GetNetworkStateIcon();
 }
 
-void DualNetworkBoard::SetPowerSaveLevel(PowerSaveLevel level) {
-    current_board_->SetPowerSaveLevel(level);
+void DualNetworkBoard::SetPowerSaveMode(bool enabled) {
+    current_board_->SetPowerSaveMode(enabled);
 }
 
 std::string DualNetworkBoard::GetBoardJson() {   

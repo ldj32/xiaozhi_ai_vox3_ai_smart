@@ -49,10 +49,9 @@ public:
     // 重写Board接口
     virtual std::string GetBoardType() override;
     virtual void StartNetwork() override;
-    virtual void SetNetworkEventCallback(NetworkEventCallback callback) override;
     virtual NetworkInterface* GetNetwork() override;
     virtual const char* GetNetworkStateIcon() override;
-    virtual void SetPowerSaveLevel(PowerSaveLevel level) override;
+    virtual void SetPowerSaveMode(bool enabled) override;
     virtual std::string GetBoardJson() override;
     virtual std::string GetDeviceStatusJson() override;
 };

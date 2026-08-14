@@ -2,8 +2,6 @@
 #define _SINGLE_LED_H_
 
 #include "led.h"
-#include <freertos/FreeRTOS.h>
-#include <freertos/task.h>
 #include <driver/gpio.h>
 #include <led_strip.h>
 #include <esp_timer.h>

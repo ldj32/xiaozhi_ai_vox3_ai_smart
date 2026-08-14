@@ -46,7 +46,7 @@
 #define DISPLAY_HEIGHT  64
 #define SH1106
 #else
-#error "OLED display type is not selected"
+#error "未选择 OLED 屏幕类型"
 #endif
 
 #define DISPLAY_MIRROR_X true

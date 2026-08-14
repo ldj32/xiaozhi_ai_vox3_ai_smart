@@ -1,5 +1,4 @@
 {
-    "type": "minsi-k08-dual",
     "target": "esp32s3",
     "builds": [
         {
